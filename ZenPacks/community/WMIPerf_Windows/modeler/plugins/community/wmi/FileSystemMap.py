@@ -12,9 +12,9 @@ __doc__="""FileSystemMap
 
 FileSystemMap maps the CIM_FileSystem class to filesystems objects
 
-$Id: FileSystemMap.py,v 1.3 2010/10/14 20:03:21 egor Exp $"""
+$Id: FileSystemMap.py,v 1.4 2010/12/17 22:54:32 egor Exp $"""
 
-__version__ = '$Revision: 1.3 $'[11:-2]
+__version__ = '$Revision: 1.4 $'[11:-2]
 
 import re
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -29,14 +29,14 @@ class FileSystemMap(WMIPlugin):
       'zFileSystemMapIgnoreNames', 'zFileSystemMapIgnoreTypes')
 
     tables = {
-            "Win32_LogicalDisk":
+            "Win32_Volume":
                 (
-                "Win32_LogicalDisk",
+                "Win32_Volume",
                 None,
                 "root/cimv2",
                     {
-                    'MaximumComponentLenght':'maxNameLen',
-                    'Size':'totalBlocks',
+                    'MaximumFileNameLength':'maxNameLen',
+                    'Capacity':'totalBlocks',
                     'BlockSize':'blockSize',
                     'Name':'mount',
                     'FileSystem':'type',
@@ -50,7 +50,7 @@ class FileSystemMap(WMIPlugin):
         rm = self.relMap()
         skipfsnames = getattr(device, 'zFileSystemMapIgnoreNames', None)
         skipfstypes = getattr(device, 'zFileSystemMapIgnoreTypes', None)
-        for instance in results.get("Win32_LogicalDisk", []):
+        for instance in results.get("Win32_Volume", []):
             try:
                 if skipfsnames and re.search(skipfsnames, instance['mount']):
                     log.info("Skipping %s as it matches zFileSystemMapIgnoreNames.",
@@ -60,6 +60,8 @@ class FileSystemMap(WMIPlugin):
                     log.info("Skipping %s (%s) as it matches zFileSystemMapIgnoreTypes.",
                         instance['mount'], instance['type'])
                     continue
+                if "\Volume{" in instance['mount']: continue
+                instance['mount'] = instance['mount'][:-1]
                 om = self.objectMap(instance)
                 om.id = self.prepId(om.mount)
                 om.snmpindex = om.id

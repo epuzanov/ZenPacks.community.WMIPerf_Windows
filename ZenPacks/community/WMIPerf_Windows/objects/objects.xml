@@ -1323,7 +1323,7 @@ True
 root/cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-Win32_PerfRawData_PerfDisk_LogicalDisk.Name="${here/id}:"
+Win32_PerfRawData_PerfDisk_LogicalDisk.Name="${here/mount}"
 </property>
 <tomanycont id='datapoints'>
 <object id='CurrentDiskQueueLength' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -1385,7 +1385,7 @@ True
 root\cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-Win32_LogicalDisk.DeviceID="${here/id}:"
+Win32_Volume.Name="${here/mount}\"
 </property>
 <tomanycont id='datapoints'>
 <object id='usedBlocks' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
