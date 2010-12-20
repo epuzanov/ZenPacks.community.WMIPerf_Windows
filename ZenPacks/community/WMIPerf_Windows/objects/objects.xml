@@ -26,7 +26,7 @@ True
 root\cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-Win32_LogicalDisk.DeviceID="${here/id}:"
+${here/snmpindex}
 </property>
 <tomanycont id='datapoints'>
 <object id='usedBlocks' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -1385,7 +1385,7 @@ True
 root\cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-Win32_Volume.Name="${here/mount}\"
+${here/snmpindex}
 </property>
 <tomanycont id='datapoints'>
 <object id='usedBlocks' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -2343,7 +2343,7 @@ AVERAGE
 HardDisk I/O WMI template
 </property>
 <property type="string" id="targetPythonClass" mode="w" >
-Products.ZenModel.Win32DiskDrive
+ZenPacks.community.WMIPerf_Windows.Win32DiskDrive
 </property>
 <tomanycont id='datasources'>
 <object id='DiskDrive' module='ZenPacks.community.WMIDataSource.datasources.WMIDataSource' class='WMIDataSource'>
@@ -2792,7 +2792,7 @@ True
 root/cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-Win32_NetworkAdapter.DeviceID="${here/snmpindex}"
+${here/snmpindex}
 </property>
 <tomanycont id='datapoints'>
 <object id='ifOperStatus' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
