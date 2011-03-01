@@ -12,9 +12,9 @@ __doc__="""FileSystemMap
 
 FileSystemMap maps the Win32_FileSystem class to filesystems objects
 
-$Id: FileSystemMap.py,v 1.6 2010/12/21 18:45:18 egor Exp $"""
+$Id: FileSystemMap.py,v 1.7 2011/03/01 23:59:19 egor Exp $"""
 
-__version__ = '$Revision: 1.6 $'[11:-2]
+__version__ = '$Revision: 1.7 $'[11:-2]
 
 import re
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -64,7 +64,7 @@ class FileSystemMap(WMIPlugin):
                 om = self.objectMap(instance)
                 om.id = self.prepId(om.mount)
                 if ':' in om.snmpindex:om.snmpindex=om.snmpindex.split(':',1)[1]
-                om.blockSize = getattr(om, 'blockSize', 512) or 512
+                om.blockSize = getattr(om, 'blockSize', 4096) or 4096
                 if not om.totalBlocks: continue
                 om.totalBlocks = om.totalBlocks / om.blockSize
             except AttributeError:

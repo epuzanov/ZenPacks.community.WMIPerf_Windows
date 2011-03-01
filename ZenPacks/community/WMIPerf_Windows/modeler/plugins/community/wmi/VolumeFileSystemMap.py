@@ -12,9 +12,9 @@ __doc__="""VolumeFileSystemMap
 
 VolumeFileSystemMap maps the Win32_Volume class to filesystems objects
 
-$Id: VolumeFileSystemMap.py,v 1.0 2010/12/21 18:47:59 egor Exp $"""
+$Id: VolumeFileSystemMap.py,v 1.1 2011/03/01 23:57:41 egor Exp $"""
 
-__version__ = '$Revision: 1.0 $'[11:-2]
+__version__ = '$Revision: 1.1 $'[11:-2]
 
 import re
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -66,7 +66,7 @@ class VolumeFileSystemMap(WMIPlugin):
                 om = self.objectMap(instance)
                 om.id = self.prepId(om.mount)
                 if ':' in om.snmpindex:om.snmpindex=om.snmpindex.split(':',1)[1]
-                om.blockSize = getattr(om, 'blockSize', 512) or 512
+                om.blockSize = getattr(om, 'blockSize', 4096) or 4096
                 if not om.totalBlocks: continue
                 om.totalBlocks = om.totalBlocks / om.blockSize
             except AttributeError:
