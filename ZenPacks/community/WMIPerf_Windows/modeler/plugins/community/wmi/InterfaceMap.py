@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -13,9 +13,9 @@ __doc__ = """InterfaceMap
 Gather IP network interface information from WMI, and 
 create DMD interface objects
 
-$Id: InterfaceMap.py,v 1.6 2010/12/20 21:54:31 egor Exp $"""
+$Id: InterfaceMap.py,v 1.7 2011/05/18 23:37:25 egor Exp $"""
 
-__version__ = '$Revision: 1.6 $'[11:-2]
+__version__ = '$Revision: 1.7 $'[11:-2]
 
 import re
 import types
@@ -157,8 +157,8 @@ class InterfaceMap(WMIPlugin):
                 om.id = prepId(om.interfaceName)
                 om.interfaceName = interfaceStat.get(om.id, None) or om.interfaceName
                 om.setIpAddresses = []
-                for ip in om._setIpAddresses:
-                    if (dontCollectIpAddresses
+                for ip in (om._setIpAddresses or []):
+                    if not ip.strip() or (dontCollectIpAddresses
                         and re.search(dontCollectIpAddresses, ip)):
                         continue
                     # ignore IPv6 Addresses
