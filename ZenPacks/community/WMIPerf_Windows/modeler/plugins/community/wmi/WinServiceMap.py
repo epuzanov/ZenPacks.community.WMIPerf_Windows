@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__ = """WinServiceMap
 
 WinServiceMap gathers status of Windows services
 
-$Id: WinServiceMap.py,v 1.3 2010/12/21 18:48:29 egor Exp $"""
+$Id: WinServiceMap.py,v 1.4 2011/05/24 00:36:05 egor Exp $"""
 
-__version__ = '$Revision: 1.3 $'[11:-2]
+__version__ = '$Revision: 1.4 $'[11:-2]
 
 
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -27,24 +27,23 @@ class WinServiceMap(WMIPlugin):
     modname = "Products.ZenModel.WinService"
 
     tables = {
-            "Win32_Service":
-                (
-                "Win32_Service",
-                None,
-                "root/cimv2",
-                    {
-                    'AcceptPause':'_acceptPause',
-                    'AcceptStop':'_acceptStop',
-                    'Caption':'_description',
-                    'Name':'_name',
-                    'PathName':'pathName',
-                    'ServiceType':'serviceType',
-                    'StartMode':'startMode',
-                    'StartName':'startName',
-                    'State':'_state',
-                    }
-                ),
+        "Win32_Service": (
+            "Win32_Service",
+            None,
+            "root/cimv2",
+            {
+                'AcceptPause':'_acceptPause',
+                'AcceptStop':'_acceptStop',
+                'Caption':'_description',
+                'Name':'_name',
+                'PathName':'pathName',
+                'ServiceType':'serviceType',
+                'StartMode':'startMode',
+                'StartName':'startName',
+                'State':'_state',
             }
+        ),
+    }
 
 
     def process(self, device, results, log):

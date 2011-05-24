@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""ProcessMap
 
 ProcessMap finds various software packages installed on a device.
 
-$Id: ProcessMap.py,v 1.6 2010/10/14 20:17:12 egor Exp $"""
+$Id: ProcessMap.py,v 1.7 2011/05/23 23:19:43 egor Exp $"""
 
-__version__ = '$Revision: 1.6 $'[11:-2]
+__version__ = '$Revision: 1.7 $'[11:-2]
 
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
 
@@ -28,17 +28,16 @@ class ProcessMap(WMIPlugin):
     classname = 'createFromObjectMap'
 
     tables = {
-            "Win32_Process":
-                (
-                "Win32_Process",
-                None,
-                "root/cimv2",
-                    {
-                    'CommandLine':'parameters',
-                    'Name':'procName',
-                    }
-                ),
+        "Win32_Process": (
+            "Win32_Process",
+            None,
+            "root/cimv2",
+            {
+                'CommandLine':'parameters',
+                'Name':'procName',
             }
+        ),
+    }
 
 
     def process(self, device, results, log):
@@ -51,15 +50,7 @@ class ProcessMap(WMIPlugin):
                 if not getattr(om, 'procName', False): 
                     log.warning("Skipping process with no name")
                     continue
-                parameters = getattr(om, 'parameters', None)
-                if parameters is None: om.parameters = '' #om.procName
-#                om.parameters = ''
-#                if parameters.startswith('"'):
-#                    parameters = parameters.split('"', 2)
-#                    if len(parameters) > 2: om.parameters = parameters[2]
-#                else:
-#                    parameters = parameters.split(' ', 1)
-#                    if len(parameters) > 1: om.parameters = parameters[1]
+                om.parameters = getattr(om, 'parameters', '') or ''
                 rm.append(om)
             except AttributeError:
                 continue

@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""VolumeFileSystemMap
 
 VolumeFileSystemMap maps the Win32_Volume class to filesystems objects
 
-$Id: VolumeFileSystemMap.py,v 1.1 2011/03/01 23:57:41 egor Exp $"""
+$Id: VolumeFileSystemMap.py,v 1.2 2011/05/24 00:32:46 egor Exp $"""
 
-__version__ = '$Revision: 1.1 $'[11:-2]
+__version__ = '$Revision: 1.2 $'[11:-2]
 
 import re
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -26,24 +26,23 @@ class VolumeFileSystemMap(WMIPlugin):
     relname = "filesystems"
     modname = "Products.ZenModel.FileSystem"
     deviceProperties = WMIPlugin.deviceProperties + (
-      'zFileSystemMapIgnoreNames', 'zFileSystemMapIgnoreTypes')
+                        'zFileSystemMapIgnoreNames','zFileSystemMapIgnoreTypes')
 
     tables = {
-            "Win32_Volume":
-                (
-                "Win32_Volume",
-                None,
-                "root/cimv2",
-                    {
-                    '__path':'snmpindex',
-                    'BlockSize':'blockSize',
-                    'Capacity':'totalBlocks',
-                    'FileSystem':'type',
-                    'MaximumFileNameLength':'maxNameLen',
-                    'Name':'mount',
-                    }
-                ),
+        "Win32_Volume": (
+            "Win32_Volume",
+            None,
+            "root/cimv2",
+            {
+                '__path':'snmpindex',
+                'BlockSize':'blockSize',
+                'Capacity':'totalBlocks',
+                'FileSystem':'type',
+                'MaximumFileNameLength':'maxNameLen',
+                'Name':'mount',
             }
+        ),
+    }
 
     def process(self, device, results, log):
         """collect WMI information from this device"""
@@ -65,7 +64,8 @@ class VolumeFileSystemMap(WMIPlugin):
                 instance['mount'] = instance['mount'][:-1]
                 om = self.objectMap(instance)
                 om.id = self.prepId(om.mount)
-                if ':' in om.snmpindex:om.snmpindex=om.snmpindex.split(':',1)[1]
+                if om.snmpindex.find('.') > om.snmpindex.find(':') > 0:
+                    om.snmpindex = om.snmpindex.split(':', 1)[1]
                 om.blockSize = getattr(om, 'blockSize', 4096) or 4096
                 if not om.totalBlocks: continue
                 om.totalBlocks = om.totalBlocks / om.blockSize

@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""ProductMap
 
 ProductMap finds various software packages installed on a device.
 
-$Id: ProductMap.py,v 1.7 2010/10/14 19:44:47 egor Exp $"""
+$Id: ProductMap.py,v 1.8 2011/05/24 00:20:43 egor Exp $"""
 
-__version__ = '$Revision: 1.7 $'[11:-2]
+__version__ = '$Revision: 1.8 $'[11:-2]
 
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -27,21 +27,20 @@ class ProductMap(WMIPlugin):
     compname = "os"
 
     tables = {
-            "Win32_Product":
-                (
-                "Win32_Product",
-                None,
-                "root/cimv2",
-                    {
-                    'Name':'setProductKey',
-                    'Description':'_description',
-                    'InstallDate':'_setInstallDate',
-                    'InstallDate2':'setInstallDate',
-                    'Vendor':'_vendor',
-#                    'Version':'version',
-                    }
-                ),
+        "Win32_Product": (
+            "Win32_Product",
+            None,
+            "root/cimv2",
+            {
+                'Name':'setProductKey',
+                'Description':'_description',
+                'InstallDate':'_setInstallDate',
+                'InstallDate2':'setInstallDate',
+                'Vendor':'_vendor',
+#                'Version':'version',
             }
+        ),
+    }
 
 
     def process(self, device, results, log):
@@ -61,7 +60,7 @@ class ProductMap(WMIPlugin):
                 om = self.objectMap(instance)
                 if not om.setProductKey: continue
                 om.id = self.prepId(om.setProductKey)
-                if om._vendor: om._vendor = om._vendor.split()[0]
+                if om._vendor: om._vendor = str(om._vendor).split()[0]
                 else: om._vendor = 'Unknown'
                 om.setProductKey = MultiArgs(om.setProductKey, om._vendor)
                 rm.append(om)

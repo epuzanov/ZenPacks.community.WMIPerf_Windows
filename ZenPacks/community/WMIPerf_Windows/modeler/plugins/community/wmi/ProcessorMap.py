@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""ProcessorMap
 
 ProcessorMap maps the CIM_Processor class to cpus objects
 
-$Id: ProcessorMap.py,v 1.6 2010/12/21 18:46:56 egor Exp $"""
+$Id: ProcessorMap.py,v 1.7 2011/05/24 00:15:24 egor Exp $"""
 
-__version__ = '$Revision: 1.6 $'[11:-2]
+__version__ = '$Revision: 1.7 $'[11:-2]
 
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -53,37 +53,35 @@ class ProcessorMap(WMIPlugin):
     modname = "ZenPacks.community.WMIPerf_Windows.Win32Processor"
 
     tables = {
-            "Win32_Processor":
-                (
-                "Win32_Processor",
-                None,
-                "root/cimv2",
-                    {
-                    '__path':'snmpindex',
-                    'CpuStatus':'_status',
-                    'DeviceID':'id',
-                    'Name':'_name',
-                    'CurrentVoltage':'voltage',
-                    'MaxClockSpeed':'clockspeed',
-                    'ExternalBusClockSpeed':'_extspeed',
-                    'ExtClock':'extspeed',
-                    'NumberOfCores':'core',
-                    'SocketDesignation':'socket',
-                    'VoltageCaps':'_voltage',
-                    }
-                ),
-            "Win32_CacheMemory":
-                (
-                "Win32_CacheMemory",
-                None,
-                "root/cimv2",
-                    {
-                    'BlockSize':'BlockSize',
-                    'Level':'level',
-                    'NumberOfBlocks':'Blocks',
-                    }
-                ),
+        "Win32_Processor": (
+            "Win32_Processor",
+            None,
+            "root/cimv2",
+            {
+                '__path':'snmpindex',
+                'CpuStatus':'_status',
+                'DeviceID':'id',
+                'Name':'_name',
+                'CurrentVoltage':'voltage',
+                'MaxClockSpeed':'clockspeed',
+                'ExternalBusClockSpeed':'_extspeed',
+                'ExtClock':'extspeed',
+                'NumberOfCores':'core',
+                'SocketDesignation':'socket',
+                'VoltageCaps':'_voltage',
             }
+        ),
+        "Win32_CacheMemory": (
+            "Win32_CacheMemory",
+            None,
+            "root/cimv2",
+            {
+                'BlockSize':'BlockSize',
+                'Level':'level',
+                'NumberOfBlocks':'Blocks',
+            }
+        ),
+    }
 
     def processCacheMemory(self, instances, cpus):
         """processing CacheMemory table"""
@@ -126,15 +124,14 @@ class ProcessorMap(WMIPlugin):
             try:
                 om.id = self.prepId(om.id)
                 om.socket = om.id[3:]
-                if not om.extspeed: om.extspeed = om._extspeed
-                om.voltage = om.voltage * 100
-                if om._voltage in (1, 2, 4):
-                    om.voltage = {1:5000, 2:3300, 4:2900}.get(om._voltage)
+                om.extspeed = om.extspeed or om._extspeed
+                om.voltage = {1:50, 2:33, 4:29}.get(om._voltage, om.voltage)*100
                 om.cacheSizeL1 = cache.get(1, 0)
                 om.cacheSizeL2 = cache.get(2, 0)
 #                om.cacheSizeL3 = cache.get(3, 0)
                 om.setProductKey = getManufacturerAndModel(om._name)
-                if ':' in om.snmpindex:om.snmpindex=om.snmpindex.split(':',1)[1]
+                if om.snmpindex.find('.') > om.snmpindex.find(':') > 0:
+                    om.snmpindex = om.snmpindex.split(':', 1)[1]
             except AttributeError:
                 continue
             rm.append(om)

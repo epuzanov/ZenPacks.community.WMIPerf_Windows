@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__ = """RouteMap
 
 RouteMap gathers and stores routing information.
 
-$Id: RouterMap.py,v 1.4 2010/12/21 18:47:25 egor Exp $"""
+$Id: RouterMap.py,v 1.5 2011/05/24 00:27:14 egor Exp $"""
 
-__version__ = '$Revision: 1.4 $'[11:-2]
+__version__ = '$Revision: 1.5 $'[11:-2]
 
 
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -25,30 +25,28 @@ class RouteMap(WMIPlugin):
     relname = "routes"
     compname = "os"
     modname = "Products.ZenModel.IpRouteEntry"
-    deviceProperties = \
-                WMIPlugin.deviceProperties + ('zRouteMapCollectOnlyLocal',
+    deviceProperties = WMIPlugin.deviceProperties+('zRouteMapCollectOnlyLocal',
                                                'zRouteMapCollectOnlyIndirect',
                                                'zRouteMapMaxRoutes')
 
 
     tables = {
-            "Win32_IP4RouteTable":
-                (
-                "Win32_IP4RouteTable",
-                None,
-                "root/cimv2",
-                    {
-                    '__path':'snmpindex',
-                    'Destination':'id',
-                    'Mask':'routemask',
-                    'Metric1':'metric1',
-                    'InterfaceIndex':'setInterfaceIndex',
-                    'NextHop':'setNextHopIp',
-                    'Protocol':'routeproto',
-                    'Type':'routetype',
-                    }
-                ),
+        "Win32_IP4RouteTable": (
+            "Win32_IP4RouteTable",
+            None,
+            "root/cimv2",
+            {
+                '__path':'snmpindex',
+                'Destination':'id',
+                'Mask':'routemask',
+                'Metric1':'metric1',
+                'InterfaceIndex':'setInterfaceIndex',
+                'NextHop':'setNextHopIp',
+                'Protocol':'routeproto',
+                'Type':'routetype',
             }
+        ),
+    }
 
 
     def process(self, device, results, log):
@@ -59,6 +57,9 @@ class RouteMap(WMIPlugin):
         maxRoutes = getattr(device, 'zRouteMapMaxRoutes', 500)
         rm = self.relMap()
         for route in results.get("Win32_IP4RouteTable", []):
+            if len(rm.maps) > maxRoutes:
+                log.warning("Maximum number of routes (%d) exceeded", maxRoutes)
+                break
             om = self.objectMap(route)
             if not hasattr(om, "id"): continue
             if not hasattr(om, "routemask"): continue
@@ -67,22 +68,17 @@ class RouteMap(WMIPlugin):
             # Workaround for existing but invalid netmasks
             if om.routemask is None: continue
 
-            om.setTarget = om.id + "/" + str(om.routemask)
-            om.id = om.id + "_" + str(om.routemask)
+            om.setTarget = '%s/%s'%(om.id, om.routemask)
+            om.id = '%s_%s'%(om.id, om.routemask)
             if om.routemask == 32: continue
             routeproto = getattr(om, 'routeproto', 'other')
             om.routeproto = self.mapSnmpVal(routeproto, self.routeProtoMap)
-            if localOnly and om.routeproto != 'local':
-                continue
-            if not hasattr(om, 'routetype'): 
-                continue
+            if localOnly and om.routeproto != 'local': continue
+            if not hasattr(om, 'routetype'): continue
             om.routetype = self.mapSnmpVal(om.routetype, self.routeTypeMap)
-            if indirectOnly and om.routetype != 'indirect':
-                continue
-            if len(rm.maps) > maxRoutes:
-                log.error("Maximum number of routes (%d) exceeded", maxRoutes)
-                return 
-            if ':' in om.snmpindex:om.snmpindex=om.snmpindex.split(':',1)[1]
+            if indirectOnly and om.routetype != 'indirect': continue
+            if om.snmpindex.find('.') > om.snmpindex.find(':') > 0:
+                om.snmpindex = om.snmpindex.split(':', 1)[1]
             rm.append(om)
         return rm
 

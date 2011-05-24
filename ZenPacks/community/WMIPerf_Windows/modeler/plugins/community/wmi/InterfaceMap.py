@@ -13,9 +13,9 @@ __doc__ = """InterfaceMap
 Gather IP network interface information from WMI, and 
 create DMD interface objects
 
-$Id: InterfaceMap.py,v 1.7 2011/05/18 23:37:25 egor Exp $"""
+$Id: InterfaceMap.py,v 1.8 2011/05/23 23:54:09 egor Exp $"""
 
-__version__ = '$Revision: 1.7 $'[11:-2]
+__version__ = '$Revision: 1.8 $'[11:-2]
 
 import re
 import types
@@ -54,52 +54,48 @@ class InterfaceMap(WMIPlugin):
     compname = "os"
     relname = "interfaces"
     modname = "Products.ZenModel.IpInterface"
-    deviceProperties = \
-                WMIPlugin.deviceProperties + ('zInterfaceMapIgnoreNames',
-                                               'zInterfaceMapIgnoreTypes',
+    deviceProperties = WMIPlugin.deviceProperties + ('zInterfaceMapIgnoreNames',
+                                                    'zInterfaceMapIgnoreTypes',
                                                'zInterfaceMapIgnoreIpAddresses')
 
     tables = {
-            "Win32_NetworkAdapterConfiguration":
-                (
-                "Win32_NetworkAdapterConfiguration",
-                None,
-                "root/cimv2",
-                    {
-                    'Description':'interfaceName',
-                    'Index':'snmpindex',
-                    'InterfaceIndex':'ifindex',
-                    'IPAddress':'_setIpAddresses',
-                    'IPEnabled':'_ipenabled',
-                    'MTU':'mtu',
-                    }
-                ),
-            "Win32_NetworkAdapter":
-                (
-                "Win32_NetworkAdapter",
-                None,
-                "root/cimv2",
-                    {
-                    'AdapterType':'type',
-                    'DeviceID':'snmpindex',
-#                    'InterfaceIndex':'ifindex',
-                    'MACAddress':'macaddress',
-                    'MaxSpeed':'speed',
-                    'NetConnectionStatus':'operStatus',
-                    'StatusInfo':'adminStatus',
-                    }
-                ),
-            "Win32_PerfRawData_Tcpip_NetworkInterface":
-                (
-                "Win32_PerfRawData_Tcpip_NetworkInterface",
-                None,
-                "root/cimv2",
-                    {
-                    'CurrentBandwidth':'speed',
-                    'Name':'Name',
-                    }
-                ),
+        "Win32_NetworkAdapterConfiguration": (
+            "Win32_NetworkAdapterConfiguration",
+            None,
+            "root/cimv2",
+            {
+                'Description':'interfaceName',
+                'Index':'snmpindex',
+                'InterfaceIndex':'ifindex',
+                'IPAddress':'_setIpAddresses',
+                'IPEnabled':'_ipenabled',
+                'MTU':'mtu',
             }
+        ),
+        "Win32_NetworkAdapter": (
+            "Win32_NetworkAdapter",
+            None,
+            "root/cimv2",
+            {
+                'AdapterType':'type',
+                'DeviceID':'snmpindex',
+#                'InterfaceIndex':'ifindex',
+                'MACAddress':'macaddress',
+                'MaxSpeed':'speed',
+                'NetConnectionStatus':'operStatus',
+                'StatusInfo':'adminStatus',
+            }
+        ),
+        "Win32_PerfRawData_Tcpip_NetworkInterface": (
+            "Win32_PerfRawData_Tcpip_NetworkInterface",
+            None,
+            "root/cimv2",
+            {
+                'CurrentBandwidth':'speed',
+                'Name':'Name',
+            }
+        ),
+    }
 
 
     def process(self, device, results, log):
