@@ -1485,7 +1485,7 @@ True
 root/cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-python:here.osProcessClass().ignoreParameters and "Win32_Process.Name=\"%s\""%here.procName or "Win32_Process.CommandLine=\"%s\""%here.parameters
+python:(here.osProcessClass().ignoreParameters or not here.parameters) and "Win32_Process.Name=\"%s\""%here.procName or "Win32_Process.CommandLine=\"%s\""%here.parameters.replace('"','\\"')
 </property>
 <tomanycont id='datapoints'>
 <object id='Handle_count' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -2213,7 +2213,7 @@ True
 root/cimv2
 </property>
 <property type="string" id="wql" mode="w" >
-Win32_Process.CommandLine="${here/pathName}"
+python:'Win32_Process.CommandLine="%s"'%here.pathName.replace('"','\\"')
 </property>
 <tomanycont id='datapoints'>
 <object id='KernelModeTime' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
