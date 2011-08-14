@@ -13,9 +13,9 @@ __doc__ = """InterfaceMap
 Gather IP network interface information from WMI, and 
 create DMD interface objects
 
-$Id: InterfaceMap.py,v 1.8 2011/05/23 23:54:09 egor Exp $"""
+$Id: InterfaceMap.py,v 1.9 2011/08/14 23:53:41 egor Exp $"""
 
-__version__ = '$Revision: 1.8 $'[11:-2]
+__version__ = '$Revision: 1.9 $'[11:-2]
 
 import re
 import types
@@ -67,8 +67,9 @@ class InterfaceMap(WMIPlugin):
                 'Description':'interfaceName',
                 'Index':'snmpindex',
                 'InterfaceIndex':'ifindex',
-                'IPAddress':'_setIpAddresses',
-                'IPEnabled':'_ipenabled',
+                'IPAddress':'_ipAddress',
+                'IPEnabled':'_ipEnabled',
+                'IPSubnet':'_ipSubnet',
                 'MTU':'mtu',
             }
         ),
@@ -135,7 +136,7 @@ class InterfaceMap(WMIPlugin):
             try: interfaceConf[int(key)] = instance
             except: continue
         for instance in results.get("Win32_NetworkAdapterConfiguration", []):
-            if not instance['_ipenabled']: continue
+            if not instance['_ipEnabled']: continue
             try:
                 instance.update(interfaceConf.get(int(instance['snmpindex']),{}))
                 if not instance.get('type', None): continue
@@ -153,13 +154,16 @@ class InterfaceMap(WMIPlugin):
                 om.id = prepId(om.interfaceName)
                 om.interfaceName = interfaceStat.get(om.id, None) or om.interfaceName
                 om.setIpAddresses = []
-                for ip in (om._setIpAddresses or []):
+                if type(om._ipAddress) is not list: om._ipAddress = []
+                if not om._ipSubnet:
+                    om._ipSubnet = ['255.255.255.0' for x in om._ipAddress]
+                for ip, mask in zip(om._ipAddress, om._ipSubnet):
                     if not ip.strip() or (dontCollectIpAddresses
                         and re.search(dontCollectIpAddresses, ip)):
                         continue
                     # ignore IPv6 Addresses
                     if ip.__contains__(':'): continue
-                    om.setIpAddresses.append(ip)
+                    om.setIpAddresses.append(ip+'/'+str(self.maskToBits(mask)))
                 if not om.ifindex: om.ifindex = om.snmpindex
                 om.snmpindex = 'Win32_NetworkAdapter.DeviceID="%s"'%om.snmpindex
                 if om.speed == 0: om.speed = interfaceSpeed.get(om.id, 0)
