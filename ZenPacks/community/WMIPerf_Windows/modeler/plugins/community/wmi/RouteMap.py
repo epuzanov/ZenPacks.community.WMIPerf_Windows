@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the WMIPerf_Windows Zenpack for Zenoss.
-# Copyright (C) 2010, 2011 Egor Puzanov.
+# Copyright (C) 2010-2012 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__ = """RouteMap
 
 RouteMap gathers and stores routing information.
 
-$Id: RouterMap.py,v 1.5 2011/05/24 00:27:14 egor Exp $"""
+$Id: RouterMap.py,v 1.6 2012/07/03 22:57:34 egor Exp $"""
 
-__version__ = '$Revision: 1.5 $'[11:-2]
+__version__ = '$Revision: 1.6 $'[11:-2]
 
 
 from ZenPacks.community.WMIDataSource.WMIPlugin import WMIPlugin
@@ -85,7 +85,7 @@ class RouteMap(WMIPlugin):
 
     def mapSnmpVal(self, value, map):
         if len(map)+1 >= value:
-            value = map[value-1]
+            value = map[int(value-1)]
         return value
 
 
